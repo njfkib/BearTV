@@ -13,8 +13,11 @@
     <string name="home_search">Search</string>
     <string name="home_push">Push</string>
     <string name="home_setting">Setting</string>
-    <string name="home_recent">Recent</string>
+    <string name="home_history">History</string>
     <string name="home_recommend">Recommend</string>
+
+    <!-- Vod -->
+    <string name="vod_last">Last seen <xliff:g name="name">%s</xliff:g></string>
 
     <!-- Detail -->
     <string name="detail_site">Site: <xliff:g name="name">%s</xliff:g></string>

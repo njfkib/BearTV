@@ -1,28 +1,48 @@
 package com.fongmi.android.tv.ui.presenter;
 
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.leanback.widget.Presenter;
 
-import com.fongmi.android.tv.bean.Vod;
+import com.fongmi.android.tv.R;
+import com.fongmi.android.tv.api.ApiConfig;
+import com.fongmi.android.tv.bean.History;
 import com.fongmi.android.tv.databinding.AdapterVodBinding;
 import com.fongmi.android.tv.utils.ImgUtil;
 import com.fongmi.android.tv.utils.ResUtil;
 
-public class VodPresenter extends Presenter {
+public class HistoryPresenter extends Presenter {
 
-    private final OnClickListener mListener;
+    private OnClickListener mListener;
     private int width, height;
+    private boolean delete;
 
-    public VodPresenter(OnClickListener listener, int columns) {
-        this.mListener = listener;
+    public HistoryPresenter(int columns) {
         setLayoutSize(columns);
     }
 
     public interface OnClickListener {
-        void onItemClick(Vod item);
+
+        void onItemClick(History item);
+
+        void onItemDelete(History item);
+
+        boolean onLongClick();
+    }
+
+    public void setOnClickListener(OnClickListener listener) {
+        this.mListener = listener;
+    }
+
+    public boolean isDelete() {
+        return delete;
+    }
+
+    public void setDelete(boolean delete) {
+        this.delete = delete;
     }
 
     private void setLayoutSize(int columns) {
@@ -42,13 +62,21 @@ public class VodPresenter extends Presenter {
 
     @Override
     public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object object) {
-        Vod item = (Vod) object;
+        History item = (History) object;
         ViewHolder holder = (ViewHolder) viewHolder;
         holder.binding.name.setText(item.getVodName());
-        holder.binding.remark.setText(item.getVodRemarks());
-        holder.binding.remark.setVisibility(item.getRemarkVisible());
+        holder.binding.site.setText(ApiConfig.getSiteName(item.getSiteKey()));
+        holder.binding.remark.setText(ResUtil.getString(R.string.vod_last, item.getVodRemarks()));
+        holder.binding.name.setVisibility(delete ? View.GONE : View.VISIBLE);
+        holder.binding.site.setVisibility(delete ? View.GONE : View.VISIBLE);
+        holder.binding.remark.setVisibility(delete ? View.GONE : View.VISIBLE);
+        holder.binding.delete.setVisibility(!delete ? View.GONE : View.VISIBLE);
         ImgUtil.load(item.getVodName(), item.getVodPic(), holder.binding.image);
-        setOnClickListener(holder, view -> mListener.onItemClick(item));
+        holder.view.setOnLongClickListener(view -> mListener.onLongClick());
+        holder.view.setOnClickListener(view -> {
+            if (isDelete()) mListener.onItemDelete(item);
+            else mListener.onItemClick(item);
+        });
     }
 
     @Override
